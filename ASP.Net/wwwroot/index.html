@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>AJAX(Asynchronous JavaScript And XML)</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="jquery-3.7.0.js">
+    </script>
+</head>
+<body>
+    <!--<table id="cities" border="1">
+        <caption>
+            Города Швейцарии
+        </caption>
+        <tr>
+            <td>Название</td>
+            <td>Численность населения</td>
+        </tr>
+        <tr></tr>
+    </table>
+    <select id="countries">
+        <option>Выберите страну</option>
+    </select>
+    <p id="city"></p>-->
+
+
+    <div class="wrapper">
+        <header class="hd">
+            <div class="hd-inner">
+                <h1 class="hd-title">Enter the title of the movie:</h1>
+                <div class="rating">
+                    <span id="rating"></span>
+                </div>
+            </div>
+        </header>
+
+        <section class="search">
+            <div class="search-input">
+                <input type="text" id="searchInput" placeholder="Search for a movie..." class="input">
+                <button id="searchBtn" class="btn">
+                    <span>Search</span>
+                </button>
+            </div>
+        </section>
+
+        <div id="errorState" class="err hidden">
+            <p>Movie not found. Please try another search.</p>
+        </div>
+
+        <section id="movieDetails" class="movie-info hidden">
+            <div class="movie-info-content">
+                <img id="moviePoster" src="" alt="" class="poster">
+                <div class="desc">
+                    <h2 id="movieTitle" class="title"></h2>
+                    <div class="grid">
+                        <div class="item">
+                            <p class="label">Year:</p>
+                            <p id="year"></p>
+                        </div>
+                        <div class="item">
+                            <p class="label">Released:</p>
+                            <p id="released"></p>
+                        </div>
+                        <div class="item">
+                            <p class="label">Runtime:</p>
+                            <p id="runtime"></p>
+                        </div>
+                        <div class="item">
+                            <p class="label">Genre:</p>
+                            <p id="genre"></p>
+                        </div>
+                        <div class="item">
+                            <p class="label">Director:</p>
+                            <p id="director"></p>
+                        </div>
+                        <div class="item">
+                            <p class="label">Writer:</p>
+                            <p id="writer"></p>
+                        </div>
+                        <div class="item">
+                            <p class="label">Actors:</p>
+                            <p id="actors"></p>
+                        </div>
+                    </div>
+                    <div class="plot">
+                        <p class="label">Plot:</p>
+                        <p id="plot"></p>
+                    </div>
+                    <div class="grid">
+                        <div class="item">
+                            <p class="label">Language:</p>
+                            <p id="language"></p>
+                        </div>
+                        <div class="item">
+                            <p class="label">Country:</p>
+                            <p id="country"></p>
+                        </div>
+                        <div class="item full">
+                            <p class="label">Awards:</p>
+                            <p id="awards"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="back">
+            <div class="back-input">
+                <button id="backBtn" class="back-btn">
+                    <span>Back</span>
+                </button>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="script.js">
+
+    </script>
+</body>
+</html>
