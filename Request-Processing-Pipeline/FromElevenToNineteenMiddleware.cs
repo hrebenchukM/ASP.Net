@@ -1,5 +1,11 @@
 ﻿namespace RequestProcessingPipeline
 {
+//    FromElevenToNineteenMiddleware:
+
+//Обрабатывает числа от 11 до 19.
+//Если число меньше 11 или больше 19, передает запрос следующему компоненту.
+//Для чисел от 11 до 19, возвращает соответствующие текстовые значения, например, "Your number is twelve".
+
     public class FromElevenToNineteenMiddleware
     {
         private readonly RequestDelegate _next;

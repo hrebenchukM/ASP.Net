@@ -1,5 +1,12 @@
 ﻿namespace RequestProcessingPipeline
 {
+//    FromTwentyToHundredMiddleware:
+
+//Обрабатывает числа от 20 до 100.
+//Если число меньше 20, передает запрос следующему компоненту.
+//Если число больше 100, возвращает сообщение "Number greater than one hundred".
+//Если число равно 100, возвращает сообщение "Your number is one hundred".
+//Для чисел от 20 до 99, делит число на десятки и единицы, и в зависимости от наличия единиц (например, 20, 30, 40), возвращает соответствующий результат(например, "Your number is twenty").
     public class FromTwentyToHundredMiddleware
     {
         private readonly RequestDelegate _next;
@@ -15,14 +22,16 @@
             {
                 int number = Convert.ToInt32(token);
                 number = Math.Abs(number);
+                string[] Tens = { "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety" };
+
                 if (number < 20)
                 {
                     await _next.Invoke(context); //Контекст запроса передаем следующему компоненту
                 }
                 else if(number > 100)
                 {
-                    // Выдаем окончательный ответ клиенту
-                    await context.Response.WriteAsync("Number greater than one hundred");
+                    context.Session.SetString("number", Tens[number / 10 - 2]);
+                    await _next.Invoke(context); //Контекст запроса передаем следующему компоненту
                 }
                 else if (number == 100)
                 {
@@ -31,7 +40,6 @@
                 }
                 else
                 {
-                    string[] Tens = { "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety" };
                     if (number % 10 == 0)
                     {
                         // Выдаем окончательный ответ клиенту
@@ -50,7 +58,7 @@
             catch (Exception)
             {
                 // Выдаем окончательный ответ клиенту
-                await context.Response.WriteAsync("Incorrect parameter");
+                await context.Response.WriteAsync("Incorrect parameter FromTwentyToHundredMiddleware");
             }
         }
     }

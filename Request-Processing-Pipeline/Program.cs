@@ -1,3 +1,4 @@
+using Request_Processing_Pipeline;
 using RequestProcessingPipeline;
 
 var builder = WebApplication.CreateBuilder(args);//обьект WebApplication реализует контракт IApplicationBuilder , из этого можно сказать что этот обьект и представляет собой тот самый middleware конвеер 
@@ -11,6 +12,7 @@ var app = builder.Build();//строим экземпляр веб приожения
 app.UseSession();   // Добавляем middleware-компонент для работы с сессиями
 
 // Добавляем middleware-компоненты в конвейер обработки запроса.
+app.UseFromHundredToThousand();
 app.UseFromTwentyToHundred();// 20-100//метод расширения который внутри регистрирует компонент
 app.UseFromElevenToNineteen();//11-19
 app.UseFromOneToTen();//1-9

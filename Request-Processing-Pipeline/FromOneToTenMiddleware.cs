@@ -1,5 +1,12 @@
 ﻿namespace RequestProcessingPipeline
 {
+//    FromOneToTenMiddleware:
+
+//Обрабатывает числа от 1 до 10.
+//Если число больше 10, передает запрос следующему компоненту в цепочке.
+//Для чисел от 1 до 9, отвечает текстом, например, "Your number is one".
+//Для числа 10, сразу возвращает ответ "Your number is ten".
+//Если число больше 20, сохраняет единичную цифру в сессии для дальнейшей обработки.
     public class FromOneToTenMiddleware
     {
         private readonly RequestDelegate _next;
@@ -27,8 +34,12 @@
 
                     // Любые числа больше 20, но не кратные 10
                     if (number > 20)
+                    {
                         // Записываем в сессионную переменную number результат для компонента FromTwentyToHundredMiddleware
                         context.Session.SetString("number", Ones[number % 10 - 1]); //в числе 25 тут число пять записали в сессию
+
+                    }
+                   
                     else
                         // Выдаем окончательный ответ клиенту
                         await context.Response.WriteAsync("Your number is " + Ones[number - 1]); // от 1 до 9
@@ -37,7 +48,7 @@
             catch(Exception)
             {
                 // Выдаем окончательный ответ клиенту
-                await context.Response.WriteAsync("Incorrect parameter");
+                await context.Response.WriteAsync("Incorrect parameter FromOneToTenMiddleware");
             }
         }
     }
