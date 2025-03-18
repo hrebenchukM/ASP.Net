@@ -13,10 +13,10 @@ namespace MVC
         //С точки зрени мвс не всегда метод является action, но action єто всегда метод
        
 
-        public RedirectResult RedirectMethod()
-        {
-            return Redirect("/Home/Index");//переадресация можно после изменения бд 
-        }
+        //public RedirectResult RedirectMethod()
+        //{
+        //    return Redirect("/Home/Index");//переадресация можно после изменения бд 
+        //}
 
         private readonly ILogger<HomeController> _logger;
 
@@ -26,9 +26,7 @@ namespace MVC
         }
         public IActionResult Index()
         {
-            ViewData["Head"] = "Welcome to the Home Page";
-            ViewBag.Name = "ASP.NET MVC Example";
-            return View();
+              return View();
         }
 
         public IActionResult Privacy()

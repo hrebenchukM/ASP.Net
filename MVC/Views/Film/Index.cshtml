@@ -1,17 +1,51 @@
-﻿<div style="padding-top:30px">
-    <h3>Список фильмов  </h3>
-    <table class="table">
-        <tr><td><p>Название</p></td><td><p>Режиссер</p></td><td><p>Жанр</p></td><td><p>Год</p></td> <td><p>Постер</p></td><td><p>Описание</p></td></tr>
+﻿<div class="py-5">
+    <h1 class="text-center text-gradient mb-5" style="font-family: 'Helvetica Neue', sans-serif; font-weight: 300; font-size: 3rem; letter-spacing: 2px; text-transform: uppercase; ">
+        Top 10 Films
+    </h1>
+
+    <div class="row d-flex">
         @foreach (var f in ViewBag.Films)
         {
-            <tr>
-                <td><p>@f.Name</p></td>
-                <td><p>@f.Maker</p></td>
-                <td><p>@f.Genre</p></td>
-                <td><p>@f.Year</p></td>
-                <td><img src="@f.Poster" alt="Poster" style="width: 100px; height: auto;" /></td>
-                <td><p>@f.Description</p></td>
-            </tr>
+            <div class="col-md-4 mb-4 d-flex">
+                <div class="card bg-dark text-white h-100">
+                    <img src="@f.Poster" class="card-img-top" alt="@f.Name">
+                    <div class="card-body bg-dark text-white d-flex flex-column">
+                        <h5 class="card-title text-gradient">@f.Name</h5>
+                        <div class="d-flex justify-content-between mb-3">
+                            <div class="d-flex align-items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                                <span class="ms-2">@f.Maker</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m22 8-6 4 6 4V8Z" />
+                                    <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
+                                </svg>
+                                <span class="ms-2">@f.Genre</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                                    <line x1="16" x2="16" y1="2" y2="6" />
+                                    <line x1="8" x2="8" y1="2" y2="6" />
+                                    <line x1="3" x2="21" y1="10" y2="10" />
+                                </svg>
+                                <span class="ms-2">@f.Year</span>
+                            </div>
+                        </div>
+                        <p class="card-text">@f.Description</p>
+                    </div>
+                </div>
+            </div>
         }
-    </table>
+    </div>
 </div>
