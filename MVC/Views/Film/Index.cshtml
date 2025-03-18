@@ -1,0 +1,17 @@
+﻿<div style="padding-top:30px">
+    <h3>Список фильмов  </h3>
+    <table class="table">
+        <tr><td><p>Название</p></td><td><p>Режиссер</p></td><td><p>Жанр</p></td><td><p>Год</p></td> <td><p>Постер</p></td><td><p>Описание</p></td></tr>
+        @foreach (var f in ViewBag.Films)
+        {
+            <tr>
+                <td><p>@f.Name</p></td>
+                <td><p>@f.Maker</p></td>
+                <td><p>@f.Genre</p></td>
+                <td><p>@f.Year</p></td>
+                <td><img src="@f.Poster" alt="Poster" style="width: 100px; height: auto;" /></td>
+                <td><p>@f.Description</p></td>
+            </tr>
+        }
+    </table>
+</div>

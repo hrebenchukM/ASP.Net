@@ -1,20 +1,33 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using MVC.Models;
+using MVC;
 
-namespace MVC.Controllers
+namespace MVC
 {
     public class HomeController : Controller
     {
+
+        // ContentResult: пишет указанный контент напрямую в ответ в виде строки
+        // Если в качестве возвращаемого результата тип string, то фреймворк 
+        // автоматически создаст объект ContentResult для возвращаемой строки.
+        //С точки зрени мвс не всегда метод является action, но action єто всегда метод
+       
+
+        public RedirectResult RedirectMethod()
+        {
+            return Redirect("/Home/Index");//переадресация можно после изменения бд 
+        }
+
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
         }
-
         public IActionResult Index()
         {
+            ViewData["Head"] = "Welcome to the Home Page";
+            ViewBag.Name = "ASP.NET MVC Example";
             return View();
         }
 

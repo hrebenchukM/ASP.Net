@@ -2,9 +2,10 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div style="padding-top:30px">
+    <h2>@ViewData["Head"]</h2>
+    <h2>@ViewBag.Name</h2>
 </div>
+@*     Эта вьюшка вставляется в мастер страницу Layot *@
 @* Это не штмл сртраница а именно вьюшка . Это класс, на основе этой вьюшки будет создан дотнет  класс в сил коде.
 В папка вьюшки на основе которых будет потом рендарится страница. *@
