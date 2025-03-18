@@ -17,6 +17,8 @@
             {
                 int number = Convert.ToInt32(token);
                 number = Math.Abs(number);
+                string[] Hundreds = { "one hundred", "two hundred", "three hundred", "four hundred", "five hundred",
+                                               "six hundred", "seven hundred", "eight hundred", "nine hundred" };
 
 
                 if (number < 100)
@@ -30,9 +32,7 @@
                 }
                 else
                 {
-                    string[] Hundreds = { "one hundred", "two hundred", "three hundred", "four hundred", "five hundred",
-                                               "six hundred", "seven hundred", "eight hundred", "nine hundred" };
-
+                   
                     if (number % 100 == 0)
                     {
                         // Выдаем окончательный ответ клиенту

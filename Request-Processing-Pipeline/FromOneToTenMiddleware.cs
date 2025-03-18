@@ -36,10 +36,12 @@
                     if (number > 20)
                     {
                         // Записываем в сессионную переменную number результат для компонента FromTwentyToHundredMiddleware
-                        context.Session.SetString("number", Ones[number % 10 - 1]); //в числе 25 тут число пять записали в сессию
+                        context.Session.SetString("number", Ones[number % 10 - 1]);  //в числе 25 тут число пять записали в сессию
 
                     }
-                   
+
+                
+
                     else
                         // Выдаем окончательный ответ клиенту
                         await context.Response.WriteAsync("Your number is " + Ones[number - 1]); // от 1 до 9

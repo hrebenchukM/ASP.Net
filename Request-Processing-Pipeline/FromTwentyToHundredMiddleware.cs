@@ -1,4 +1,7 @@
-﻿namespace RequestProcessingPipeline
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+
+namespace RequestProcessingPipeline
 {
 //    FromTwentyToHundredMiddleware:
 
@@ -30,8 +33,8 @@
                 }
                 else if(number > 100)
                 {
-                    context.Session.SetString("number", Tens[number / 10 - 2]);
-                    await _next.Invoke(context); //Контекст запроса передаем следующему компоненту
+
+                    await context.Response.WriteAsync("Number greater than one hundred");
                 }
                 else if (number == 100)
                 {
@@ -46,10 +49,13 @@
                         await context.Response.WriteAsync("Your number is " + Tens[number / 10 - 2]); 
                     }
                     else
-                    { 
+                    {
                         await _next.Invoke(context); // Контекст запроса передаем следующему компоненту.Будет ждать пока второй компанент не передаст ему управление await отпустит поток то первый компонент делает следующую логику.
                         string? result = string.Empty;
-                        result = context.Session.GetString("number"); // получим число от компонента FromOneToTenMiddleware
+                        result = context.Session.GetString("number");
+                        context.Session.SetString("number", Tens[number / 10 - 2] + " " + result);// получим число от компонента FromOneToTenMiddleware
+
+
                         // Выдаем окончательный ответ клиенту
                         await context.Response.WriteAsync("Your number is " + Tens[number / 10 - 2] + " " + result);
                     }                   
