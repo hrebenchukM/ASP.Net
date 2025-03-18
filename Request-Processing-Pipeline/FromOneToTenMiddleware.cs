@@ -1,12 +1,6 @@
 ﻿namespace RequestProcessingPipeline
 {
 //    FromOneToTenMiddleware:
-
-//Обрабатывает числа от 1 до 10.
-//Если число больше 10, передает запрос следующему компоненту в цепочке.
-//Для чисел от 1 до 9, отвечает текстом, например, "Your number is one".
-//Для числа 10, сразу возвращает ответ "Your number is ten".
-//Если число больше 20, сохраняет единичную цифру в сессии для дальнейшей обработки.
     public class FromOneToTenMiddleware
     {
         private readonly RequestDelegate _next;
@@ -18,6 +12,7 @@
 
         public async Task Invoke(HttpContext context)
         {
+
             string? token = context.Request.Query["number"]; // Получим число из контекста запроса
             try
             {
@@ -33,18 +28,21 @@
                     string[] Ones = { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
 
                     // Любые числа больше 20, но не кратные 10
-                    if (number > 20)
+                    if (number > 20 && number % 10 != 0)
                     {
                         // Записываем в сессионную переменную number результат для компонента FromTwentyToHundredMiddleware
-                        context.Session.SetString("number", Ones[number % 10 - 1]);  //в числе 25 тут число пять записали в сессию
+                        context.Session.SetString("ones", Ones[number % 10 - 1]);  //в числе 25 тут число пять записали в сессию
+                        string? result = string.Empty;
+                        result = context.Session.GetString("ones");// получим число от компонента FromOneToTenMiddleware
+                      
 
                     }
-
-                
-
-                    else
+                    else if (number >= 1 && number <= 9)
+                    {
                         // Выдаем окончательный ответ клиенту
                         await context.Response.WriteAsync("Your number is " + Ones[number - 1]); // от 1 до 9
+
+                    }
                 }            
             }
             catch(Exception)

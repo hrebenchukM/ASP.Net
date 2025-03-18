@@ -1,10 +1,10 @@
-﻿namespace RequestProcessingPipeline
-{
-//    FromElevenToNineteenMiddleware:
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 
-//Обрабатывает числа от 11 до 19.
-//Если число меньше 11 или больше 19, передает запрос следующему компоненту.
-//Для чисел от 11 до 19, возвращает соответствующие текстовые значения, например, "Your number is twelve".
+namespace RequestProcessingPipeline
+{
+    //    FromElevenToNineteenMiddleware:
+
 
     public class FromElevenToNineteenMiddleware
     {
@@ -22,13 +22,20 @@
             {
                 int number = Convert.ToInt32(token);
                 number = Math.Abs(number);
-                if (number < 11 || number > 19)
+                if (number % 100 < 11 || number % 100 > 19 )
                 {
                     await _next.Invoke(context);  //Контекст запроса передаем следующему компоненту
+                }
+                else if (number > 100 && number % 100 >= 11 && number % 100 <= 19)
+                {
+                    string[] Numbers = { "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen" };
+                    context.Session.SetString("numbers", Numbers[number % 100 - 11]);
+
                 }
                 else
                 {
                     string[] Numbers = { "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen" };
+                    context.Session.SetString("numbers", Numbers[number - 11]);
                     // Выдаем окончательный ответ клиенту
                     await context.Response.WriteAsync("Your number is " + Numbers[number - 11]);
                 }
@@ -36,7 +43,7 @@
             catch (Exception)
             {
                 // Выдаем окончательный ответ клиенту
-                await context.Response.WriteAsync("Incorrect parameter");
+                await context.Response.WriteAsync("Incorrect parameter FromElevenToNineteenMiddleware");
             }
         }
     }

@@ -3,14 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace RequestProcessingPipeline
 {
-//    FromTwentyToHundredMiddleware:
-
-//Обрабатывает числа от 20 до 100.
-//Если число меньше 20, передает запрос следующему компоненту.
-//Если число больше 100, возвращает сообщение "Number greater than one hundred".
-//Если число равно 100, возвращает сообщение "Your number is one hundred".
-//Для чисел от 20 до 99, делит число на десятки и единицы, и в зависимости от наличия единиц (например, 20, 30, 40), возвращает соответствующий результат(например, "Your number is twenty").
-    public class FromTwentyToHundredMiddleware
+  public class FromTwentyToHundredMiddleware
     {
         private readonly RequestDelegate _next;
         public FromTwentyToHundredMiddleware(RequestDelegate next)//сюда приходит ссылка на следующий middleware компонент в конвеере. 
@@ -25,16 +18,23 @@ namespace RequestProcessingPipeline
             {
                 int number = Convert.ToInt32(token);
                 number = Math.Abs(number);
-                string[] Tens = { "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety" };
-
+               
                 if (number < 20)
                 {
                     await _next.Invoke(context); //Контекст запроса передаем следующему компоненту
                 }
-                else if(number > 100)
+                else if (number > 100 && (number % 100 >= 11 && number % 100 <= 19))
                 {
-
-                    await context.Response.WriteAsync("Number greater than one hundred");
+                    await _next.Invoke(context);  // Передаем в следующий middleware (FromElevenToNineteenMiddleware)
+                }
+                else if (number > 100 )
+                {
+                    string[] Tens = { "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety" };
+                    context.Session.SetString("tens", Tens[(number / 10) % 10 - 2]);
+                 
+                   
+                        await _next.Invoke(context);
+ 
                 }
                 else if (number == 100)
                 {
@@ -43,6 +43,11 @@ namespace RequestProcessingPipeline
                 }
                 else
                 {
+
+                    string[] Tens = { "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety" };
+                    context.Session.SetString("tens", Tens[(number / 10) % 10 - 2]);   
+                    
+                
                     if (number % 10 == 0)
                     {
                         // Выдаем окончательный ответ клиенту
@@ -51,10 +56,9 @@ namespace RequestProcessingPipeline
                     else
                     {
                         await _next.Invoke(context); // Контекст запроса передаем следующему компоненту.Будет ждать пока второй компанент не передаст ему управление await отпустит поток то первый компонент делает следующую логику.
-                        string? result = string.Empty;
-                        result = context.Session.GetString("number");
-                        context.Session.SetString("number", Tens[number / 10 - 2] + " " + result);// получим число от компонента FromOneToTenMiddleware
 
+                        string? result = string.Empty;
+                        result = context.Session.GetString("ones");// получим число от компонента FromOneToTenMiddleware
 
                         // Выдаем окончательный ответ клиенту
                         await context.Response.WriteAsync("Your number is " + Tens[number / 10 - 2] + " " + result);

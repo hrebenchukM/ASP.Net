@@ -12,6 +12,7 @@ var app = builder.Build();//строим экземпляр веб приожения
 app.UseSession();   // Добавляем middleware-компонент для работы с сессиями
 
 // Добавляем middleware-компоненты в конвейер обработки запроса.
+app.UseSessionClear();
 app.UseFromHundredToThousand();//100-999
 app.UseFromTwentyToHundred();// 20-100//метод расширения который внутри регистрирует компонент
 app.UseFromElevenToNineteen();//11-19
