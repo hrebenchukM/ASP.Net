@@ -1,15 +1,15 @@
 ﻿namespace Request_Processing_Pipeline
-{
-    //обрабатывать числа от 100 до 999.
-    public class FromHundredToThousandMiddleware
+{  //обрабатывать числа от 1000 до 9999.
+    public class FromThousandToTenThousandMiddleware
     {
         private readonly RequestDelegate _next;
 
-        public FromHundredToThousandMiddleware(RequestDelegate next)
+        public FromThousandToTenThousandMiddleware(RequestDelegate next)
         {
             this._next = next;
         }
 
+        //То есть в цепочке компонентов, этот знает про следующий и может передать эстафетную палочку дальше
         public async Task Invoke(HttpContext context)
         {
             string? token = context.Request.Query["number"];
@@ -17,51 +17,41 @@
             {
                 int number = Convert.ToInt32(token);
                 number = Math.Abs(number);
-              
 
-                if (number < 100)
+
+                if (number < 1000)
                 {
                     await _next.Invoke(context); //Контекст запроса передаем следующему компоненту
                 }
-                else if (number == 1000)
+                else if (number == 10000)
                 {
                     // Выдаем окончательный ответ клиенту
-                    await context.Response.WriteAsync("Your number is one thousand");
-                }
-                else if (number > 1000 && number < 10000)
-                {
-                    string[] Hundreds = { "one hundred", "two hundred", "three hundred", "four hundred", "five hundred",
-                                               "six hundred", "seven hundred", "eight hundred", "nine hundred" };
-
-                    if ((number / 100) % 10 != 0)
-                    {
-                        context.Session.SetString("hundreds", Hundreds[(number / 100) % 10 - 1]);
-                    }
-                    await _next.Invoke(context); 
-                 
+                    await context.Response.WriteAsync("Your number is ten thousand");
                 }
                 else
                 {
-                    string[] Hundreds = { "one hundred", "two hundred", "three hundred", "four hundred", "five hundred",
-                                               "six hundred", "seven hundred", "eight hundred", "nine hundred" };
-
+                    string[] Thousands = { "one thousand", "two thousand", "three thousand", "four thousand", "five thousand",
+                                               "six thousand", "seven thousand", "eight thousand", "nine thousand" };
 
                     if (number % 100 == 0)
                     {
                         // Выдаем окончательный ответ клиенту
-                        await context.Response.WriteAsync("Your number is " + Hundreds[number / 100 - 1]);// Индексация с 0
+                        await context.Response.WriteAsync("Your number is " + Thousands[number / 1000 - 1]);// Индексация с 0
                     }
                     else
                     {
-                        
 
                         await _next.Invoke(context); // Контекст запроса передаем следующему компоненту.Будет ждать пока второй компанент не передаст ему управление await отпустит поток то первый компонент делает следующую логику.
+
+                        string? resultHundreds = context.Session.GetString("hundreds"); 
                         string? resultTens = context.Session.GetString("tens");
                         string? resultOnes = context.Session.GetString("ones");
                         string? resultNumbers = context.Session.GetString("numbers");
 
-
-                        string result = Hundreds[number / 100 - 1];
+                        // Формируем строку с проверкой наличия значений
+                        string result = Thousands[number / 1000 - 1];
+                        if (!string.IsNullOrWhiteSpace(resultHundreds))
+                            result += " " + resultHundreds;
 
                         if (!string.IsNullOrWhiteSpace(resultTens))
                             result += " " + resultTens;
@@ -84,7 +74,6 @@
                 await context.Response.WriteAsync("Incorrect parameter FromHundredToThousandMiddleware");
             }
         }
+
     }
 }
-
-

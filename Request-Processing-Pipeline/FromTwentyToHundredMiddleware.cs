@@ -32,7 +32,6 @@ namespace RequestProcessingPipeline
                     string[] Tens = { "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety" };
                     context.Session.SetString("tens", Tens[(number / 10) % 10 - 2]);
                  
-                   
                         await _next.Invoke(context);
  
                 }
