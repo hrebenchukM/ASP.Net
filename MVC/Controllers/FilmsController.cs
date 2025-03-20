@@ -13,9 +13,13 @@ namespace MVC.Controllers
     {//Конроллер полностью обеспечивает нам реализацию выполнения крад операций 
         private readonly FilmContext _context;
 
-        public FilmsController(FilmContext context)
+        // IWebHostEnvironment предоставляет информацию об окружении, в котором запущено приложение
+        IWebHostEnvironment _appEnvironment;//нам нужно будет получить абсолютный путь к корневой папке сайта
+
+        public FilmsController(FilmContext context,IWebHostEnvironment appEnvironment)
         {
             _context = context;
+            _appEnvironment = appEnvironment;
         }
 
         // GET: Films
@@ -57,15 +61,37 @@ namespace MVC.Controllers
             return View();
         }
 
+
+
+
+
+        // Все загружаемые файлы в ASP.NET Core представлены типом IFormFile
+        // из пространства имен Microsoft.AspNetCore.Http
+
         // POST: Films/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]//защита от поддельных запросов ( если токен не пришел-злоумышлиники ) 
-
+        [RequestSizeLimit(1000000000)]//размер обьема данных отправляемый пост запросом
         //[Bind("Id,Name,Surname,Age,GPA")]  задает к каакому свойству будет привязка
-        public async Task<IActionResult> Create([Bind("Id,Name,Maker,Genre,Year,Poster,Description")] Film film)
+        public async Task<IActionResult> Create([Bind("Id,Name,Maker,Genre,Year,Poster,Description")] Film film, IFormFile uploadedFile)//uploadedFile название должно как в вьюшке совпадать
         {
+            if (uploadedFile != null)
+            {
+                // Путь к папке Files
+                string path = "/Files/" + uploadedFile.FileName; // имя файла
+
+                // Сохраняем файл в папку Files в каталоге wwwroot
+                // Для получения полного пути к каталогу wwwroot
+                // применяется свойство WebRootPath объекта IWebHostEnvironment
+                using (var fileStream = new FileStream(_appEnvironment.WebRootPath + path, FileMode.Create))
+                {
+                    await uploadedFile.CopyToAsync(fileStream); // копируем файл в поток
+                }
+                film.Poster = path;
+            }
+
             if (ModelState.IsValid)//стандартная валидация всей модели в целом 
             {
                 _context.Add(film);
@@ -96,13 +122,27 @@ namespace MVC.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]//указываем явно атрибутом ибо по умолчанию GET запрос 
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Maker,Genre,Year,Poster,Description")] Film film)
+        [RequestSizeLimit(1000000000)]//размер обьема данных отправляемый пост запросом
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Maker,Genre,Year,Poster,Description")] Film film, IFormFile uploadedFile)//uploadedFile название должно как в вьюшке совпадать
         {
             if (id != film.Id)
             {
                 return NotFound();
             }
+            if (uploadedFile != null)
+            {
+                // Путь к папке Files
+                string path = "/Files/" + uploadedFile.FileName; // имя файла
 
+                // Сохраняем файл в папку Files в каталоге wwwroot
+                // Для получения полного пути к каталогу wwwroot
+                // применяется свойство WebRootPath объекта IWebHostEnvironment
+                using (var fileStream = new FileStream(_appEnvironment.WebRootPath + path, FileMode.Create))
+                {
+                    await uploadedFile.CopyToAsync(fileStream); // копируем файл в поток
+                }
+                film.Poster = path;
+            }
             if (ModelState.IsValid)
             {
                 try
