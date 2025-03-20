@@ -14,7 +14,10 @@
             ">
             <div class="container-fluid">
                 <a class="navbar-brand text-white" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                <a class="navbar-brand text-white" asp-controller="Film" asp-action="Index">Films List</a>
+                <a class="navbar-brand text-white" asp-controller="Films" asp-action="Index">Films List</a>
+                <a class="navbar-brand text-white" asp-controller="Films" asp-action="Create">Create New</a>
+                @* тегхелпер с атрибутом асп который указывает имя екшн который будет обрабатывать клик по гиперссылке, даже полный путь маршрута писать необязательно при этом ибо вьюшка относится к опр.контроллеру и так и мвс это понимает *@
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -41,7 +44,11 @@
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    @* Секция (имя, опциональность не нужна ибо не всем вьюшкам навязываем) *@
+    @* В эту секцию будут помещаться скрипты которые будут заниматься валидацией формы. *@
 </body>
 </html>
 

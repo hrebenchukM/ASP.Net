@@ -36,7 +36,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(//сопоставляет url адреса с маршрутами. Регистрируем таблицу маршрутизации
     name: "default",
-    pattern: "{controller=Film}/{action=Index}/{id?}");//по умолчанию маршрут
+    pattern: "{controller=Films}/{action=Index}/{id?}");//по умолчанию маршрут
 //мы больше не будем писать явным образом пути страниц, а лишь будут маршруты.
 app.Run();
 

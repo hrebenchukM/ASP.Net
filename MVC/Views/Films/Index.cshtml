@@ -1,16 +1,25 @@
-﻿<div class="py-5">
-    <h1 class="text-center text-gradient mb-5" style="font-family: 'Helvetica Neue', sans-serif; font-weight: 300; font-size: 3rem; letter-spacing: 2px; text-transform: uppercase; ">
+﻿@model IEnumerable<MVC.Film>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="py-5">
+    <h1 class="text-center text-gradient mb-5"
+        style="font-family: 'Helvetica Neue', sans-serif; font-weight: 300; font-size: 3rem; letter-spacing: 2px; text-transform: uppercase;">
         Top 10 Films
     </h1>
 
+   
+
     <div class="row d-flex">
-        @foreach (var f in ViewBag.Films)
+        @foreach (var item in Model)
         {
             <div class="col-md-4 mb-4 d-flex">
                 <div class="card bg-dark text-white h-100">
-                    <img src="@f.Poster" class="card-img-top" alt="@f.Name">
+                    <img src="@Html.DisplayFor(modelItem => item.Poster)" class="card-img-top" alt="@Html.DisplayFor(modelItem => item.Name)">   @* старый хелпер ,строго типизированный,работает с моделью визуализирует *@
                     <div class="card-body bg-dark text-white d-flex flex-column">
-                        <h5 class="card-title text-gradient">@f.Name</h5>
+                        <h5 class="card-title text-gradient">@Html.DisplayFor(modelItem => item.Name)</h5>
                         <div class="d-flex justify-content-between mb-3">
                             <div class="d-flex align-items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -19,7 +28,7 @@
                                     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                                     <circle cx="12" cy="7" r="4" />
                                 </svg>
-                                <span class="ms-2">@f.Maker</span>
+                                <span class="ms-2">@Html.DisplayFor(modelItem => item.Maker)</span>
                             </div>
                             <div class="d-flex align-items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -28,7 +37,7 @@
                                     <path d="m22 8-6 4 6 4V8Z" />
                                     <rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
                                 </svg>
-                                <span class="ms-2">@f.Genre</span>
+                                <span class="ms-2">@Html.DisplayFor(modelItem => item.Genre)</span>
                             </div>
                             <div class="d-flex align-items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -39,10 +48,16 @@
                                     <line x1="8" x2="8" y1="2" y2="6" />
                                     <line x1="3" x2="21" y1="10" y2="10" />
                                 </svg>
-                                <span class="ms-2">@f.Year</span>
+                                <span class="ms-2">@Html.DisplayFor(modelItem => item.Year)</span>
                             </div>
                         </div>
-                        <p class="card-text">@f.Description</p>
+                        <p class="card-text">@Html.DisplayFor(modelItem => item.Description)</p>
+                        <div class="mt-auto">
+                            @* формируется маршрут на основе данных *@
+                            @* <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Edit</a> *@
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Details</a>
+                            @* <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Delete</a> *@
+                        </div>
                     </div>
                 </div>
             </div>
