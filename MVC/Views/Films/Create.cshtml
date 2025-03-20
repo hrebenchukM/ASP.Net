@@ -13,54 +13,72 @@
 @*Благодаря установке атрибута формы enctype="multipart/form-data" 
 браузер будет знать, что вместе с формой надо передать файл.*@
 @* Вьюшка типизируется по определнной модели *@
-<h1>Create</h1>
-
-<h4>Film</h4>
+<h1 class="display-4 text-gradient text-center mb-4">Create</h1>
+<h4 class="text-center mb-4">Film</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create" method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Maker" class="control-label"></label>
-                <input asp-for="Maker" class="form-control" />
-                <span asp-validation-for="Maker" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Genre" class="control-label"></label>
-                <input asp-for="Genre" class="form-control" />
-                <span asp-validation-for="Genre" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Year" class="control-label"></label>
-                <input asp-for="Year" class="form-control" />
-                <span asp-validation-for="Year" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="file" name="uploadedFile" class="form-control" /><br>
-                <span asp-validation-for="Poster" class="text-danger"></span>
-            </div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body p-4">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+                            <div class="mb-4">
+                                <label asp-for="Name" class="form-label text-muted">Title</label>
+                                <input asp-for="Name" class="form-control rounded-3" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
 
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+                            <div class="mb-4">
+                                <label asp-for="Maker" class="form-label text-muted">Director</label>
+                                <input asp-for="Maker" class="form-control rounded-3" />
+                                <span asp-validation-for="Maker" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Genre" class="form-label text-muted">Genre</label>
+                                <input asp-for="Genre" class="form-control rounded-3" />
+                                <span asp-validation-for="Genre" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Year" class="form-label text-muted">Release Year</label>
+                                <input asp-for="Year" class="form-control rounded-3" />
+                                <span asp-validation-for="Year" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Poster" class="form-label text-muted">Movie Poster</label>
+                                <input type="file" name="uploadedFile" class="form-control rounded-3" />
+                                <span asp-validation-for="Poster" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-4">
+                                <label asp-for="Description" class="form-label text-muted">Description</label>
+                                <textarea asp-for="Description" class="form-control rounded-3" rows="4"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary rounded-3">
+                                    <i class="fas fa-save me-2"></i>Save Movie
+                                </button>
+                          </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
+
+        <div class="mt-4 text-center">
+            <a asp-action="Index" class="btn btn-link text-primary text-decoration-none hover-shadow rounded-3">
+                Back to List
+            </a>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
