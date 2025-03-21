@@ -79,7 +79,13 @@ namespace MVC.Controllers
         [RequestSizeLimit(1000000000)]//размер обьема данных отправляемый пост запросом
         //[Bind("Id,Name,Surname,Age,GPA")]  задает к каакому свойству будет привязка
         public async Task<IActionResult> Create([Bind("Id,Name,Maker,Genre,Year,Poster,Description,GenreId")] Film film, IFormFile uploadedFile)//uploadedFile название должно как в вьюшке совпадать
-        {
+        {    //собственная проверка своя серверная логика , серверная валидация джаваскрипт уже не задействован
+            // Пустая строка, передаваемая первому параметру метода, указывает,
+            // что данная ошибка относится ко всей модели в целом, а не к отдельному свойству.
+
+            if (uploadedFile == null)
+                ModelState.AddModelError("", "Необходимо загрузить постер.");
+
             if (uploadedFile != null)
             {
                 // Путь к папке Files
@@ -94,17 +100,20 @@ namespace MVC.Controllers
                 }
                 film.Poster = path;
             }
+            //собственная проверка своя серверная логика , серверная валидация джаваскрипт уже не задействован
 
-            try
+            if (film.Year <= 0)
+                ModelState.AddModelError("Year", "Год должен быть больше нуля");//Year ключ ошибка связана с конкретным свойством а не с моделью в целом , появится ошибка под текстовым полем возраста а не над формой
+            if (ModelState.IsValid)//в целом проверяет каждое свойство соттвествие требованийм
             {
                 _context.Add(film);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            catch (Exception)
-            {
-                return RedirectToAction(nameof(Index));
-            }
+            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Name");
+            return View(film);
+
+          
         }
 
         // GET: Films/Edit/5
@@ -135,6 +144,11 @@ namespace MVC.Controllers
             {
                 return NotFound();
             }
+
+
+            if (uploadedFile == null)
+                ModelState.AddModelError("", "Необходимо загрузить постер.");
+
             if (uploadedFile != null)
             {
                 // Путь к папке Files
@@ -149,7 +163,11 @@ namespace MVC.Controllers
                 }
                 film.Poster = path;
             }
-          
+            if (film.Year <= 0)
+                ModelState.AddModelError("Year", "Год должен быть больше нуля");//Year ключ ошибка связана с конкретным свойством а не с моделью в целом , появится ошибка под текстовым полем возраста а не над формой
+
+            if (ModelState.IsValid)
+            {
                 try
                 {
                     _context.Update(film);
@@ -163,11 +181,14 @@ namespace MVC.Controllers
                     }
                     else
                     {
-                        throw;//серверная ошибка 500-
+                        throw;
                     }
                 }
                 return RedirectToAction(nameof(Index));
-  
+            }
+            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Name", film.GenreId);
+            return View(film);
+
         }
 
         // GET: Films/Delete/5

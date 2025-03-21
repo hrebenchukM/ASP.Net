@@ -18,6 +18,13 @@ namespace MVC.Controllers
         {
             _context = context;
         }
+        [AcceptVerbs("Get", "Post")]
+        public IActionResult CheckName(string name)
+        {
+            if (name == "horror" || name == "Horror")
+                return Json(false);//не вьюшка а формат джейсон - мы имеем дело с аяксом
+            return Json(true);
+        }
 
         // GET: Genres
         public async Task<IActionResult> Index()
@@ -56,18 +63,16 @@ namespace MVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] Genre genre)
         {
-            try
+
+            if (ModelState.IsValid)
             {
                 _context.Add(genre);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            catch (Exception)
-            {
-                return RedirectToAction(nameof(Index));
-            }
+            return View(genre);
 
-          
+
         }
 
         // GET: Genres/Edit/5
@@ -95,24 +100,27 @@ namespace MVC.Controllers
             {
                 return NotFound();
             }
-            try
+            if (ModelState.IsValid)
             {
-                _context.Update(genre);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!GenreExists(genre.Id))
+                try
                 {
-                    return NotFound();
+                    _context.Update(genre);
+                    await _context.SaveChangesAsync();
                 }
-                else
+                catch (DbUpdateConcurrencyException)
                 {
-                    throw;
+                    if (!GenreExists(genre.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
+                return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
-          
+            return View(genre);
         }
 
         // GET: Genres/Delete/5

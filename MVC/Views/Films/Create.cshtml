@@ -23,7 +23,9 @@
                 <div class="card-body p-4">
                     <form asp-action="Create" method="post" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
-                            <div class="mb-4">
+                        @* Самавалидотор сообщения серверной собственной логики тут будут  +(ModelOnly указывает что с моделью в целом а не конкретно взятыми свойствами)  *@
+
+                        <div class="mb-4">
                                 <label asp-for="Name" class="form-label text-muted">Title</label>
                                 <input asp-for="Name" class="form-control rounded-3" />
                                 <span asp-validation-for="Name" class="text-danger"></span>
@@ -82,7 +84,7 @@
 </div>
 
 
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @* Вызываем рендеринг частичной вьюшки в которой находятся подключение необходимых скриптов как валидации *@
 }
