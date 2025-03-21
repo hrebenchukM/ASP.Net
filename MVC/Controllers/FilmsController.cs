@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MVC;
 
+//Создавались с помощью средств вижуал студии Add Controller MVC Controller with views using EntityFrameWork по классам модели и используя мастер страницу
 namespace MVC.Controllers
 {
     public class FilmsController : Controller
@@ -25,12 +26,14 @@ namespace MVC.Controllers
         // GET: Films
         public async Task<IActionResult> Index()
         {
+            var filmContext = _context.Films.Include(f => f.Genre);
+
             //передаем во вью дженерик коллекцию 
             //@model IEnumerable<StudentsMVC.Models.Student>
             //Теперь вьюшка читает модель напрямую
             //представление строго типизируется по модели(круто ибо компилятор ошибки замечает)
 
-            return View(await _context.Films.ToListAsync());//Асинхронность нам всегда нужна  
+            return View(await filmContext.ToListAsync());//Асинхронность нам всегда нужна  
         }
 
        
@@ -38,12 +41,13 @@ namespace MVC.Controllers
         // GET: Films/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            if (id == null || _context.Films == null)
             {
                 return NotFound();//вернет 404 статус и отобразит 
             }
 
             var film = await _context.Films
+                .Include(f => f.Genre)
                 .FirstOrDefaultAsync(m => m.Id == id);//делаем запрос с фильтром 
             if (film == null)
             {
@@ -58,7 +62,8 @@ namespace MVC.Controllers
         // GET: Films/Create
         public IActionResult Create()
         {
-            return View();
+            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Name");//SelectList своего рода коллекция к которой будет привязан комбобокс 
+            return View();//передавать не можем сюда коллекцию команд потомучто вьюшки все не типизируются по командам
         }
 
 
@@ -69,13 +74,11 @@ namespace MVC.Controllers
         // из пространства имен Microsoft.AspNetCore.Http
 
         // POST: Films/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]//защита от поддельных запросов ( если токен не пришел-злоумышлиники ) 
         [RequestSizeLimit(1000000000)]//размер обьема данных отправляемый пост запросом
         //[Bind("Id,Name,Surname,Age,GPA")]  задает к каакому свойству будет привязка
-        public async Task<IActionResult> Create([Bind("Id,Name,Maker,Genre,Year,Poster,Description")] Film film, IFormFile uploadedFile)//uploadedFile название должно как в вьюшке совпадать
+        public async Task<IActionResult> Create([Bind("Id,Name,Maker,Genre,Year,Poster,Description,GenreId")] Film film, IFormFile uploadedFile)//uploadedFile название должно как в вьюшке совпадать
         {
             if (uploadedFile != null)
             {
@@ -92,19 +95,22 @@ namespace MVC.Controllers
                 film.Poster = path;
             }
 
-            if (ModelState.IsValid)//стандартная валидация всей модели в целом 
+            try
             {
                 _context.Add(film);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));//переход на стартовую страницу
+                return RedirectToAction(nameof(Index));
             }
-            return View(film);
+            catch (Exception)
+            {
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // GET: Films/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (id == null || _context.Films == null)
             {
                 return NotFound();
             }
@@ -114,17 +120,17 @@ namespace MVC.Controllers
             {
                 return NotFound();
             }
+            ViewData["GenreId"] = new SelectList(_context.Genres, "Id", "Name", film.GenreId);
             return View(film);//передали заполненную модель и вьюшка будет типизироваться по этой модели
+                              //передача данных будет в представлении поэтому передаем обьект
         }
 
         // POST: Films/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]//указываем явно атрибутом ибо по умолчанию GET запрос 
         [ValidateAntiForgeryToken]
         [RequestSizeLimit(1000000000)]//размер обьема данных отправляемый пост запросом
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Maker,Genre,Year,Poster,Description")] Film film, IFormFile uploadedFile)//uploadedFile название должно как в вьюшке совпадать
-        {
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Maker,Genre,Year,Poster,Description,GenreId")] Film film, IFormFile uploadedFile)//Players players идентификатор внешний ключ который указывает на команду этого игрока. Чтоб выбран не первый в бд
+        {//uploadedFile название должно как в вьюшке совпадать
             if (id != film.Id)
             {
                 return NotFound();
@@ -143,8 +149,7 @@ namespace MVC.Controllers
                 }
                 film.Poster = path;
             }
-            if (ModelState.IsValid)
-            {
+          
                 try
                 {
                     _context.Update(film);
@@ -162,20 +167,20 @@ namespace MVC.Controllers
                     }
                 }
                 return RedirectToAction(nameof(Index));
-            }
-            return View(film);
+  
         }
 
         // GET: Films/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+            if (id == null || _context.Films == null)
             {
                 return NotFound();
             }
 
             var film = await _context.Films
-                .FirstOrDefaultAsync(m => m.Id == id);
+               .Include(f => f.Genre)
+               .FirstOrDefaultAsync(m => m.Id == id);
             if (film == null)
             {
                 return NotFound();
@@ -189,6 +194,10 @@ namespace MVC.Controllers
         [ValidateAntiForgeryToken]//проверяет что токен пришел нормальный а не от злоумышлинника
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (_context.Films == null)
+            {
+                return Problem("Entity set 'FilmContext.Films'  is null.");
+            }
             var film = await _context.Films.FindAsync(id);
             if (film != null)
             {
@@ -201,7 +210,7 @@ namespace MVC.Controllers
 
         private bool FilmExists(int id)
         {
-            return _context.Films.Any(e => e.Id == id);
+            return (_context.Films?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

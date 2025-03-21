@@ -36,12 +36,6 @@
                             </div>
 
                             <div class="mb-4">
-                                <label asp-for="Genre" class="form-label text-muted">Genre</label>
-                                <input asp-for="Genre" class="form-control rounded-3" />
-                                <span asp-validation-for="Genre" class="text-danger"></span>
-                            </div>
-
-                            <div class="mb-4">
                                 <label asp-for="Year" class="form-label text-muted">Release Year</label>
                                 <input asp-for="Year" class="form-control rounded-3" />
                                 <span asp-validation-for="Year" class="text-danger"></span>
@@ -59,12 +53,21 @@
                                 <span asp-validation-for="Description" class="text-danger"></span>
                             </div>
 
+                        <div class="mb-4">
+                            <label asp-for="Genre" class="form-label text-muted">Genre</label>
+                            <select asp-for="GenreId" class="form-control" asp-items="ViewBag.GenreId"></select>
+                            @* ViewBag.TeamId это коллекция команд селектлист а не внешний ключ
+                            Благодаря внешнему ключу TeamId отображается нужная команда а  не первая  *@
+                            @* <input asp-for="GenreId" class="form-control rounded-3" /> *@
+                            @* <span asp-validation-for="Genre" class="text-danger"></span> *@
+                        </div>
+
 
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary rounded-3">
                                     <i class="fas fa-save me-2"></i>Save Movie
                                 </button>
-                          </div>
+                            </div>
                     </form>
                 </div>
             </div>

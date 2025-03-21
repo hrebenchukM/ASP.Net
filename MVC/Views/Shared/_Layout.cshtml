@@ -15,7 +15,10 @@
             <div class="container-fluid">
                 <a class="navbar-brand text-white" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                 <a class="navbar-brand text-white" asp-controller="Films" asp-action="Index">Films List</a>
-                <a class="navbar-brand text-white" asp-controller="Films" asp-action="Create">Create New</a>
+                <a class="navbar-brand text-white" asp-controller="Films" asp-action="Create">Create New Film</a>
+                <a class="navbar-brand text-white" asp-controller="Genres" asp-action="Index">Genres List</a>
+                <a class="navbar-brand text-white" asp-controller="Genres" asp-action="Create">Create New Genre</a>
+
                 @* тегхелпер с атрибутом асп который указывает имя екшн который будет обрабатывать клик по гиперссылке, даже полный путь маршрута писать необязательно при этом ибо вьюшка относится к опр.контроллеру и так и мвс это понимает *@
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
