@@ -1,0 +1,45 @@
+﻿@model IEnumerable<GuestbookMVC.Models.Message>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@if (Context.Session.GetString("Login") != "Guest")//получили сессионную переменную 
+{
+    <div class="message-input-section mb-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <form asp-action="AddMessage" method="post">
+                  
+                    <textarea  name="content" class="form-control mb-3" rows="3" placeholder="Write your message here..."></textarea>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="messages-container">
+    @foreach (var item in Model)
+    {
+    <div class="message-card">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                        <div class="d-flex align-items-center">
+                            <h5 class="card-title mb-0">🌸 @Html.DisplayFor(modelItem => item.User.Login)</h5>
+                        </div>
+                        <small class="text-muted"><i class="far fa-clock me-1"></i>@Html.DisplayFor(modelItem => item.Date)</small>
+                </div>
+                    <p class="card-text">@Html.DisplayFor(modelItem => item.Content)</p>
+            </div>
+        </div>
+    </div>
+    }
+</div>
+
