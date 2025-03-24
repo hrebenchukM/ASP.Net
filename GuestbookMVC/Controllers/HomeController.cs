@@ -6,28 +6,36 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using GuestbookMVC;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using GuestbookMVC.Repository;
 
 namespace GuestbookMVC.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly UserContext _context;
-        public HomeController(ILogger<HomeController> logger, UserContext context)
+
+        private readonly IMessageRepository repo;
+        private readonly IUserRepository _urepo;
+        public HomeController(ILogger<HomeController> logger, IMessageRepository r, IUserRepository ur)
         {
             _logger = logger;
-            _context = context;
+            repo = r;
+            _urepo = ur;
+
+
         }
 
         public async Task<IActionResult> Index()//куки всегда передаются в составе шттп пакета по шттп протоколу 
         {
-            var msgContext = _context.Messages.Include(m => m.User);
             string? login = HttpContext.Session.GetString("Login") ?? Request.Cookies["login"];
             if (login != null)
             {
                 HttpContext.Session.SetString("Login", login); // Восстанавливаем сессию из куки
-                ViewBag.UserId = new SelectList(_context.Users, "Id", "Login");
-                return View(await msgContext.ToListAsync());
+                var msgContext = await _urepo.GetList();
+                ViewBag.UserId = new SelectList(msgContext, "Id", "Login");
+
+                var messages = await repo.GetList();
+                return View(messages);
             }
             //if (HttpContext.Session.GetString("Login") != null)
             //{         //если сессионные переменные есть то возвращаем индекс вьюшку
@@ -54,24 +62,26 @@ namespace GuestbookMVC.Controllers
         public async Task<IActionResult> AddMessage(string content)
         {
             var log = HttpContext.Session.GetString("Login");
-            var user = await _context.Users .FirstOrDefaultAsync(u => u.Login == log);
-           
-            var message = new Message
+            var user = await _urepo.GetUserByLogin(log);
+            if (user != null)
             {
-                UserId = user.Id,
-                Content = content,
-                Date = DateTime.Now
-            };
+                var message = new Message
+                {
+                    UserId = user.Id,
+                    Content = content,
+                    Date = DateTime.Now
+                };
 
-            if (ModelState.IsValid)
-            {
-                _context.Messages.Add(message);
-                await _context.SaveChangesAsync();
+                if (ModelState.IsValid)
+                {
+                    await repo.Create(message);
+                    await repo.Save();
 
-                return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index));
+                }
             }
 
-            ViewBag.UserId = new SelectList(_context.Users, "Id", "Login");
+            ViewBag.UserId = new SelectList(await _urepo.GetList(), "Id", "Login");
             return RedirectToAction("Index");
         }
 

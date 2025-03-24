@@ -1,6 +1,7 @@
 using GuestbookMVC.Models;
 using Microsoft.EntityFrameworkCore;
 using GuestbookMVC.Models;
+using GuestbookMVC.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,11 +19,21 @@ builder.Services.AddSession(options =>
 string? connection = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // добавляем контекст ApplicationContext в качестве сервиса в приложение
-builder.Services.AddDbContext<UserContext>(options => options.UseSqlServer(connection));
+builder.Services.AddDbContext<UserContext>(options => options.UseSqlServer(connection));//считается сервисом StudentContext
+
 
 // Добавляем сервисы MVC
 builder.Services.AddControllersWithViews();
 
+// Transient: объект сервиса создается каждый раз, когда требуется экземпляр класса сервиса. 
+// Подобная модель жизненного цикла наиболее подходит для легковесных сервисов, которые не хранят данных о состоянии.
+
+// Singleton: объект сервиса создается при первом обращении к нему, 
+// все последующие запросы используют один и тот же ранее созданный объект сервиса
+
+// Scoped: для каждого http запроса создается один объект сервиса.
+builder.Services.AddScoped<IUserRepository, UserRepository>();//регистрация сервиса связанного с IUserRepository и работа с обьектом сервиса через интерфейсную ссылку
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();//регистрация сервиса MessageRepository таким образом чтобы можно было с ним работать через абстракцию  IMessageRepository
 
 var app = builder.Build();
 app.UseSession();   // Добавляем middleware-компонент для работы с сессиями

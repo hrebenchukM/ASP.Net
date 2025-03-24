@@ -5,16 +5,18 @@ using System.Security.Cryptography;//для захешированого пар�
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using GuestbookMVC.Repository;
 
 namespace GuestbookMVC.Controllers
-{
+{//контроллер совершенно не знает с кем он работает (с субд или с эмулятором)
+
     public class AccountController : Controller
     {
-        private readonly UserContext _context;
+        private readonly IUserRepository repo;
 
-        public AccountController(UserContext context)
+        public AccountController(IUserRepository r)//в интерфейсную ссылку будет передан обьект сервиса StudentRepository
         {
-            _context = context;
+            repo = r;
         }
         //любой редирект это гет запрос всегда
         public IActionResult LoginAsGuest()
@@ -34,22 +36,21 @@ namespace GuestbookMVC.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]//атребут требует чтобы токен был перефицирован
 
-        public IActionResult Login(LoginModel logon)//пришли данные с формы авторизации. назвали logon а не login чтоб не было проблемы с привязкой
+        public async Task<IActionResult> Login(LoginModel logon)//пришли данные с формы авторизации. назвали logon а не login чтоб не было проблемы с привязкой
         {//так как хеширование необратимо то мы вводим пароль соеденяем с солью которая в базе данных и снова хешируем по новой наш пароль и сверяем только тогда
             if (ModelState.IsValid)
             {
-                if (_context.Users.ToList().Count == 0)//есть ли вообще в бд пользователи 
+                if (!await repo.AnyUsers())//есть ли вообще в бд пользователи 
                 {
                     ModelState.AddModelError("", "Wrong login or password!");
                     return View(logon);
                 }
-                var users = _context.Users.Where(a => a.Login == logon.Login);
-                if (users.ToList().Count == 0)//есть ли такой логин
+                var user = await repo.GetUserByLogin(logon.Login);
+                if (user == null)//есть ли такой логин
                 {
                     ModelState.AddModelError("", "Wrong login or password!");
                     return View(logon);
                 }
-                var user = users.First();//получили сущестющего юзера
                 string? salt = user.Salt;//получили соль из бд
 
                 //переводим пароль в байт-массив  
@@ -89,7 +90,7 @@ namespace GuestbookMVC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Register(RegisterModel reg)//входной параметр обьект RegisterModel (валидируется) 
+        public async Task<IActionResult> Register(RegisterModel reg)//входной параметр обьект RegisterModel (валидируется) 
         {
             if (ModelState.IsValid)
             {
@@ -122,8 +123,8 @@ namespace GuestbookMVC.Controllers
 
                 user.Password = hash.ToString();//сюда уже присваиваем пароль соедененный с солью и захешируемый
                 user.Salt = salt;//соль рекомендуют отдельно хранить
-                _context.Users.Add(user);
-                _context.SaveChanges();
+                await repo.Create(user);
+                await repo.Save();
                 return RedirectToAction("Login");
             }
 
