@@ -1,45 +1,383 @@
-﻿@model IEnumerable<GuestbookMVC.Models.Message>
-
+﻿
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@if (Context.Session.GetString("Login") != "Guest")//получили сессионную переменную 
+
+@* секция скрипт на мастер странице *@
+@section Scripts{
+    <script>
+        $(document).ready(function () {// начнет выполнение когда страница прогрузится, когда дом полнотстью сформирован
+
+     
+        getAllMessages();
+         let userNameFromCookie = '@Context.Request.Cookies["login"]';
+        updateHeader(userNameFromCookie !== "", userNameFromCookie);
+
+
+        function updateHeader(loggedIn, userName = "") {
+             let headerHtml = "";
+
+             if (loggedIn) {
+            headerHtml = `
+            <span class="welcome-text me-3">Welcome, ${userName}!</span>
+            <a href="javascript:void(0)" class="btn btn-danger" id="btn-logout">
+                <i class="fas fa-sign-out-alt me-1"></i>Logout</a>
+             `;
+             } else {
+                 headerHtml = `
+            <a href="javascript:void(0)" class="btn btn-outline-primary me-2" id="btn-btn-login">Login</a>
+            <a href="javascript:void(0)" class="btn btn-primary" id="btn-btn-register">Register</a>
+                  `;
+             }
+
+          $("#auth-buttons").html(headerHtml);
+        }
+
+
+
+            let row = function (message) {//динамически создает 
+               return `  
+               <div class="message-card">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div class="d-flex align-items-center">
+                                <h5 class="card-title mb-0">🌸 ${message.AuthorLogin}</h5>
+                            </div>
+                            <small class="text-muted"><i class="far fa-clock me-1"></i>${message.Date}</small>
+                        </div>
+                        <p class="card-text">${message.Content}</p>
+                    </div>
+                </div>
+               </div>
+               `;
+            };//javascript: void (0) - гарантирует никакой реакции при нажатии на гиперссылку - никакого перехода на другую страницу
+
+
+            function getAllMessages() {
+                $.ajax({
+                    url: '@Url.Action("GetMessages", "Home")',//имя контроллера и екшена
+                    type: 'GET',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {//сюда придет массив студентов в формате джейсон
+                        let rows = '';
+
+                        let messages = JSON.parse(response);//парсим и получаем обычный массив обьектов джаваскрипта
+                        $.each(messages, function (index, message) {//на подобии форича перебираем массив
+                            rows += row(message);// функция row передаем студента  и она сработает  раза
+                        })
+                        $('#messages-container').html(rows); //по селектору обращаемся к tbody и меняем его заполняя набором строк rows
+                    },
+                    error: function (jqXHR, statusText, error) {// обьект по которому можно узнать код ошибки, название ошибки,более подробное описание
+                        console.log(jqXHR.status + '\n' + statusText + '\n' + error);
+                    }
+                });
+            }
+
+
+            // обработчики событий на гиперссылки
+
+            $("#btn-insert-message").on("click", function () {
+                let formData = new FormData();//програмный аналог формы , ассыциативный массив
+                //наполняем данными обьект FormData добавляя 4 элемента с ключами и значениями
+                formData.append("content", $("#content").val());//$("#name").val() с помощью jquery обращаемся на чтение к текстовым полям и снимаем значение
+   
+                //отправляем аякс запрос
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("AddMessage", "Home")',
+                    contentType: false,
+                    processData: false,
+                    //в гет запросах данные не передавали а тут data уже нужно
+                    data: formData,
+                    success: function (response) {
+                       alert(response);
+                       resetForm();//очистка формы
+                       getAllMessages();// еще аякс запрос чтоб получить актуальный список
+                    },
+                    error: function (jqXHR, statusText, error) {
+                        console.log(jqXHR.status + '\n' + statusText + '\n' + error);
+                    }
+                });
+            });
+
+
+            $("#btn-register").on("click", function () {
+                let formData = new FormData();
+                formData.append("firstName", $("#firstName").val());
+                formData.append("lastName", $("#lastName").val());
+                formData.append("logon", $("#register-login").val());
+                formData.append("pswd", $("#register-password").val());
+                  formData.append("pswdConfirm", $("#passwordConfirm").val());
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("AddUser", "Home")',
+                    contentType: false,
+                    processData: false,
+                    data: formData,
+                    success: function (response) {
+                     if (response.success) {
+                       $('#login-container').show();
+                       $('#register-container').hide();
+                         alert(response.message);
+                     }
+                      else{
+                       alert(response.message);
+                      }
+                    },
+                    error: function (jqXHR, statusText, error) {
+                        console.log(jqXHR.status + '\n' + statusText + '\n' + error);
+                    }
+                });
+            });
+
+
+            $("#btn-login").on("click", function () {
+                let formData = new FormData();
+               formData.append("logon", $("#login-login").val());
+               formData.append("pswd", $("#login-password").val());
+               formData.append("rememberMe", $("#rememberMe").prop("checked"));
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Login", "Home")',
+                    contentType: false,
+                    processData: false,
+                    data: formData,
+                    success: function (response) {
+                     if (response.success) {
+                       $('#login-container').hide();
+                       $('#register-container').hide();
+                       $('#messages-container').show();
+                       $('#message-input-section').show();
+                    
+                       updateHeader(true,  $("#login-login").val());
+                         alert(response.message);
+                     }
+                      else{
+                       alert(response.message);
+                      }
+                    },
+                    error: function (jqXHR, statusText, error) {
+                        console.log(jqXHR.status + '\n' + statusText + '\n' + error);
+                    }
+                });
+            });
+
+
+
+                $("#btn-login-guest").on("click", function () {
+                let formData = new FormData();
+                  formData.append("rememberMe", $("#rememberMe").prop("checked"));
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("LoginAsGuest", "Home")',
+                    contentType: false,
+                    processData: false,
+                    data: formData,
+                    success: function (response) {
+                     if (response.success) {
+                       $('#login-container').hide();
+                       $('#register-container').hide();
+                       $('#messages-container').show();
+                       $('#message-input-section').hide();
+                          getAllMessages();
+                       alert(response.message);
+                     }
+                      else{
+                       alert(response.message);
+                       $('#register-container').hide();
+                       $('#messages-container').hide();
+                       $('#login-container').show();
+                       $('#message-input-section').hide();
+
+                       console.log(result);
+                      }
+                    },
+                    error: function (jqXHR, statusText, error) {
+                        console.log(jqXHR.status + '\n' + statusText + '\n' + error);
+                    }
+                });
+            });
+
+
+            $(document).on("click", "#btn-logout", function () {
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("Logout", "Home")',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                       $('#login-container').show();
+                        $('#messages-container').hide();
+                       $('#register-container').hide();
+                       $('#message-input-section').hide();
+                       updateHeader(false);
+                       alert(response);
+                    },
+                    error: function (jqXHR, statusText, error) {
+                        console.log(jqXHR.status + '\n' + statusText + '\n' + error);
+                    }
+                  });
+                });
+
+
+             $(document).on("click", "#btn-btn-register", function () {
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("AddUserP", "Home")',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                       $('#login-container').hide();
+                        $('#messages-container').hide();
+                       $('#register-container').show();
+                       alert(response);
+                    },
+                    error: function (jqXHR, statusText, error) {
+                        console.log(jqXHR.status + '\n' + statusText + '\n' + error);
+                    }
+                });
+            });
+
+               $(document).on("click", "#btn-btn-login", function () {
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("LoginP", "Home")',
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                       $('#login-container').show();
+                        $('#messages-container').hide();
+                       $('#register-container').hide();
+                       alert(response);
+                    },
+                    error: function (jqXHR, statusText, error) {
+                        console.log(jqXHR.status + '\n' + statusText + '\n' + error);
+                    }
+                });
+            });
+
+       
+            function resetForm() {
+                 $("#content").val("");
+            }           
+        });
+
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");//рендерится частичное представление для валидации если она есть
+    }
+}
+
+
+
+@if (Context.Request.Cookies["login"] == null) //проверяем а есть ли куки.Обращаемся не как в классе контроллера сразу к свойству Request а как во вьюшках классах через this.Context
+{//если куки отстуствуют делаем такую форму авторизации
+    <div class="container" id="login-container">
+        <div class="row justify-content-center min-vh-100 align-items-center">
+            <div class="col-md-6">
+                <div class="card shadow-lg">
+                    <div class="card-body p-5">
+                        <h2 class="text-center mb-4"> Authorization</h2>
+
+
+                           <form>
+                            <div class="mb-4">
+                                    <label for="login" class="form-label">Login</label>
+                                    <input type="text" class="form-control" id="login-login" placeholder="Enter Your Login" value="" autocomplete="off" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="login-password" placeholder="Enter Your Password" value="" autocomplete="off" required>
+                            </div>
+                            <div class="mb-4 form-check">
+                                <label for="rememberMe" class="form-check-label">Remember Me</label>
+                                <input type="checkbox" class="form-check-input" id="rememberMe" placeholder="Enter Your Remember Me" value="" autocomplete="off" required>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                @* каждая гиперссылка имеет свой идентификатор *@
+                                <a href="javascript:void(0)" class="btn btn-primary btn-lg" id="btn-login">Login</a>
+                                <a href="javascript:void(0)" class="btn btn-outline-primary me-2" id="btn-login-guest">Login as Guest </a>
+                            </div>
+                          </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container" id="register-container" style="display:none;">
+        <div class="row justify-content-center min-vh-100 align-items-center">
+            <div class="col-md-6">
+                <div class="card shadow-lg">
+                    <div class="card-body p-5">
+                        <h2 class="text-center mb-4">Registration</h2>
+
+                          <form>
+                            <div class="mb-4">
+                                <label for="firstName" class="form-label">FirstName</label>
+                                <input type="text" class="form-control" id="firstName" placeholder="Enter Your FirstName" value="" autocomplete="off" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="lastName" class="form-label">LastName</label>
+                                <input type="text" class="form-control" id="lastName" placeholder="Enter Your LastName" value="" autocomplete="off" required>
+                            </div>
+                            <div class="mb-4">
+                                    <label for="login" class="form-label">Login</label>
+                                <input type="text" class="form-control" id="register-login" placeholder="Enter Your Login" value="" autocomplete="off" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="register-password" placeholder="Enter Your Password" value="" autocomplete="off" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="passwordConfirm" class="form-label">PasswordConfirm</label>
+                                <input type="password" class="form-control" id="passwordConfirm" placeholder="Enter Your PasswordConfirm" value="" autocomplete="off" required>
+                            </div>
+                         
+
+                            <div class="d-grid gap-2">
+                                @* каждая гиперссылка имеет свой идентификатор *@
+                                <a href="javascript:void(0)" class="btn btn-primary btn-lg" id="btn-register">Check in</a>
+                            </div>
+                          </form>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+
+
+}
+
+<div class="messages-container" id="messages-container" style="@(Context.Request.Cookies["login"] == null ? "display:none;" : "display:block;")">
+</div>
+@if (Context.Session.GetString("Login") != "Guest")//получили сессионную переменную
 {
-    <div class="message-input-section mb-5">
+    <div class="message-input-section mb-5" id="message-input-section" style="@(Context.Request.Cookies["login"] == null ? "display:none;" : "display:block;")">
         <div class="card shadow-sm">
             <div class="card-body">
 
-                <form asp-action="AddMessage" method="post">
-                  
-                    <textarea  name="content" class="form-control mb-3" rows="3" placeholder="Write your message here..."></textarea>
+
+                <form>
+                    <textarea name="content" id="content" class="form-control mb-3" rows="3" placeholder="Write your message here..." value="" autocomplete="off" required></textarea>
+
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane me-1"></i>Send Message
-                        </button>
+                        <a href="javascript:void(0)" class="btn btn-primary" id="btn-insert-message"><i class="fas fa-paper-plane me-1"></i>Send Message</a>
+
                     </div>
                 </form>
+
             </div>
         </div>
     </div>
 }
-
-<div class="messages-container">
-    @foreach (var item in Model)
-    {
-    <div class="message-card">
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between mb-2">
-                        <div class="d-flex align-items-center">
-                            <h5 class="card-title mb-0">🌸 @Html.DisplayFor(modelItem => item.User.Login)</h5>
-                        </div>
-                        <small class="text-muted"><i class="far fa-clock me-1"></i>@Html.DisplayFor(modelItem => item.Date)</small>
-                </div>
-                    <p class="card-text">@Html.DisplayFor(modelItem => item.Content)</p>
-            </div>
-        </div>
-    </div>
-    }
-</div>
-

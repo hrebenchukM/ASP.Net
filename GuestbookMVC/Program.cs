@@ -1,7 +1,8 @@
 using GuestbookMVC.Models;
 using Microsoft.EntityFrameworkCore;
-using GuestbookMVC.Models;
 using GuestbookMVC.Repository;
+using GuestbookMVC.Services;
+using GuestbookMVC.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,8 @@ builder.Services.AddControllersWithViews();
 // Scoped: дл€ каждого http запроса создаетс€ один объект сервиса.
 builder.Services.AddScoped<IUserRepository, UserRepository>();//регистраци€ сервиса св€занного с IUserRepository и работа с обьектом сервиса через интерфейсную ссылку
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();//регистраци€ сервиса MessageRepository таким образом чтобы можно было с ним работать через абстракцию  IMessageRepository
+builder.Services.AddScoped<IPassword, PasswordService>();//регистраци€ сервиса MessageRepository таким образом чтобы можно было с ним работать через абстракцию  IMessageRepository
+
 
 var app = builder.Build();
 app.UseSession();   // ƒобавл€ем middleware-компонент дл€ работы с сесси€ми

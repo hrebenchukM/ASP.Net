@@ -15,19 +15,20 @@
             <div class="d-flex align-items-center">
                 <h1 class="logo">Guest Book</h1>
             </div>
-            @* <a class="navbar-brand " asp-area="" asp-controller="Home" asp-action="Index">Home page</a> *@
 
-            <div class="auth-buttons">
+            <div class="auth-buttons" id="auth-buttons">
                 @if (Context.Session.GetString("Login") == null && Context.Request.Cookies["login"] == null)
                 {
-                    <a class="btn btn-outline-primary me-2" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
-                    <a class="btn btn-primary" asp-area="" asp-controller="Account" asp-action="Register">Register</a>
+                    <a href="javascript:void(0)" class="btn btn-outline-primary me-2" id="btn-btn-login">Login</a>
+                    <a href="javascript:void(0)" class="btn btn-primary" id="btn-btn-register">Register</a>
+
                 }
                 else
                 {
                     var firstName = Context.Session.GetString("FirstName") ?? Context.Request.Cookies["login"];
                     <span class="welcome-text me-3">Welcome, @firstName!</span>
-                    <a class="btn btn-danger" asp-area="" asp-controller="Home" asp-action="Logout">
+
+                    <a href="javascript:void(0)" class="btn btn-danger" id="btn-logout">
                         <i class="fas fa-sign-out-alt me-1"></i>Logout</a>
                 }
                
@@ -48,7 +49,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-
+    @* необязательная секция скриптс *@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
